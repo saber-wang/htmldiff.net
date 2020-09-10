@@ -162,7 +162,7 @@ namespace HtmlDiff
         /// <param name="value"></param>
         public void AddInsAttributeExpressions(string name, string value)
         {
-            _delAttributeExpressions.Add(name, value);
+            _insAttributeExpressions.Add(name, value);
         }
 
         private void SplitInputsToWords()
