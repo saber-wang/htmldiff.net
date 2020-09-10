@@ -47,7 +47,8 @@ namespace HtmlDiff
         private string[] _oldWords;
         private int _matchGranularity;
         private List<Regex> _blockExpressions;
-        private Dictionary<string, string> _attributeExpressions;
+        private Dictionary<string, string> _delAttributeExpressions;
+        private Dictionary<string, string> _insAttributeExpressions;
 
         /// <summary>
         /// Defines how to compare repeating words. Valid values are from 0 to 1.
@@ -100,7 +101,8 @@ namespace HtmlDiff
             _content = new StringBuilder();
             _specialTagDiffStack = new Stack<string>();
             _blockExpressions = new List<Regex>();
-            _attributeExpressions = new Dictionary<string, string>();
+            _delAttributeExpressions = new Dictionary<string, string>();
+            _insAttributeExpressions = new Dictionary<string, string>();
         }
 
         public static string Execute(string oldText, string newText)
@@ -144,13 +146,23 @@ namespace HtmlDiff
         }
 
         /// <summary>
-        /// Add extra attributes for del,ins
+        /// Add extra attributes for del
         /// </summary>
         /// <param name="name">attribute name</param>
         /// <param name="value">attribute value</param>
-        public void AddAttributeExpressions(string name,string value)
+        public void AddDelAttributeExpressions(string name,string value)
         {
-            _attributeExpressions.Add(name, value);
+            _delAttributeExpressions.Add(name, value);
+        }
+
+        /// <summary>
+        /// Add extra attributes for ins
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="value"></param>
+        public void AddInsAttributeExpressions(string name, string value)
+        {
+            _delAttributeExpressions.Add(name, value);
         }
 
         private void SplitInputsToWords()
@@ -200,13 +212,13 @@ namespace HtmlDiff
         private void ProcessInsertOperation(Operation operation, string cssClass)
         {
             List<string> text = _newWords.Where((s, pos) => pos >= operation.StartInNew && pos < operation.EndInNew).ToList();
-            InsertTag("ins", cssClass, text);
+            InsertTag("ins", cssClass, text,_insAttributeExpressions);
         }
 
         private void ProcessDeleteOperation(Operation operation, string cssClass)
         {
             List<string> text = _oldWords.Where((s, pos) => pos >= operation.StartInOld && pos < operation.EndInOld).ToList();
-            InsertTag("del", cssClass, text);
+            InsertTag("del", cssClass, text,_delAttributeExpressions);
         }
 
         private void ProcessEqualOperation(Operation operation)
@@ -237,7 +249,7 @@ namespace HtmlDiff
         /// <param name="tag"></param>
         /// <param name="cssClass"></param>
         /// <param name="words"></param>
-        private void InsertTag(string tag, string cssClass, List<string> words)
+        private void InsertTag(string tag, string cssClass, List<string> words, Dictionary<string, string> attributeExpressions)
         {
             while (true)
             {
@@ -253,7 +265,7 @@ namespace HtmlDiff
 
                 if (nonTags.Length != 0)
                 {
-                    string text = Utils.WrapText(string.Join("", nonTags), tag, cssClass,_attributeExpressions);
+                    string text = Utils.WrapText(string.Join("", nonTags), tag, cssClass, attributeExpressions);
 
                     _content.Append(text);
                 }
