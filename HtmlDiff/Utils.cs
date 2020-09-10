@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace HtmlDiff
@@ -36,9 +38,16 @@ namespace HtmlDiff
             return word;
         }
 
-        public static string WrapText(string text, string tagName, string cssClass)
+        public static string WrapText(string text, string tagName, string cssClass,Dictionary<string,string> attributes)
         {
-            return string.Format("<{0} class='{1}'>{2}</{0}>", tagName, cssClass, text);
+            StringBuilder builder = new StringBuilder($"<{tagName} class='{cssClass}'");
+            foreach (var attribute in attributes)
+            {
+                builder.Append($" {attribute.Key}='{attribute.Value}'");
+            }
+            builder.Append($">{text}</{tagName}>");
+
+            return builder.ToString();
         }
 
         public static bool IsStartOfTag(char val)

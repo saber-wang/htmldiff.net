@@ -46,7 +46,8 @@ namespace HtmlDiff
         private string[] _newWords;
         private string[] _oldWords;
         private int _matchGranularity;
-        private List<Regex> _blockExpressions; 
+        private List<Regex> _blockExpressions;
+        private Dictionary<string, string> _attributeExpressions;
 
         /// <summary>
         /// Defines how to compare repeating words. Valid values are from 0 to 1.
@@ -99,6 +100,7 @@ namespace HtmlDiff
             _content = new StringBuilder();
             _specialTagDiffStack = new Stack<string>();
             _blockExpressions = new List<Regex>();
+            _attributeExpressions = new Dictionary<string, string>();
         }
 
         public static string Execute(string oldText, string newText)
@@ -139,6 +141,16 @@ namespace HtmlDiff
         public void AddBlockExpression(Regex expression)
         {
             _blockExpressions.Add(expression);
+        }
+
+        /// <summary>
+        /// Add extra attributes for del,ins
+        /// </summary>
+        /// <param name="name">attribute name</param>
+        /// <param name="value">attribute value</param>
+        public void AddAttributeExpressions(string name,string value)
+        {
+            _attributeExpressions.Add(name, value);
         }
 
         private void SplitInputsToWords()
@@ -241,7 +253,7 @@ namespace HtmlDiff
 
                 if (nonTags.Length != 0)
                 {
-                    string text = Utils.WrapText(string.Join("", nonTags), tag, cssClass);
+                    string text = Utils.WrapText(string.Join("", nonTags), tag, cssClass,_attributeExpressions);
 
                     _content.Append(text);
                 }
