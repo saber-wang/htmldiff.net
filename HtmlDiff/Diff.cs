@@ -87,6 +87,17 @@ namespace HtmlDiff
         public double OrphanMatchThreshold { get; set; }
 
         /// <summary>
+        /// All characters are treated as a single word
+        /// <code>
+        /// aaaaa
+        /// aanaa
+        /// </code>
+        /// // <code>
+        /// aa&lt;del&gt;a&lt;/del&gt;&lt;ins&gt;n&lt;/ins&gt;aa
+        /// </code>
+        /// </summary>
+        public bool AllCharactersForWords { get; set; }
+        /// <summary>
         ///     Initializes a new instance of the class.
         /// </summary>
         /// <param name="oldText">The old text.</param>
@@ -167,12 +178,12 @@ namespace HtmlDiff
 
         private void SplitInputsToWords()
         {
-            _oldWords = WordSplitter.ConvertHtmlToListOfWords(_oldText, _blockExpressions);
+            _oldWords = WordSplitter.ConvertHtmlToListOfWords(_oldText, _blockExpressions,AllCharactersForWords);
 
             //free memory, allow it for GC
             _oldText = null;
 
-            _newWords = WordSplitter.ConvertHtmlToListOfWords(_newText, _blockExpressions);
+            _newWords = WordSplitter.ConvertHtmlToListOfWords(_newText, _blockExpressions, AllCharactersForWords);
 
             //free memory, allow it for GC
             _newText = null;

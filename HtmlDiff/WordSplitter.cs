@@ -13,7 +13,7 @@ namespace HtmlDiff
         /// </summary>
         public static string[] ConvertHtmlToListOfWords(
             string text,
-            IList<Regex> blockExpressions)
+            IList<Regex> blockExpressions,bool allCharactersOfWords)
         {
             var mode = Mode.Character;
             var currentWord = new List<char>();
@@ -90,7 +90,7 @@ namespace HtmlDiff
                             currentWord.Add(character);
                             mode = Mode.Whitespace;
                         }
-                        else if (Utils.IsWord(character)
+                        else if (!allCharactersOfWords&&Utils.IsWord(character)
                             && (currentWord.Count == 0 || Utils.IsWord(currentWord.Last())))
                         {
                             currentWord.Add(character);
